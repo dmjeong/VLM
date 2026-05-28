@@ -1,0 +1,77 @@
+{
+  "created_at": "2026-05-28T11:10:11.790103+00:00",
+  "seed": 42,
+  "split_unit": "image",
+  "counts": {
+    "train": {
+      "samples": 800,
+      "images": 40
+    },
+    "validation": {
+      "samples": 100,
+      "images": 5
+    },
+    "test": {
+      "samples": 100,
+      "images": 5
+    }
+  },
+  "images": {
+    "train": [
+      "images/airplane/airplane-vortex-edit-jpg-248229e274.jpg",
+      "images/apple/red-apple-jpg-0a9c5651ba.jpg",
+      "images/apple/young-apple-trees-bearing-fruit-geograph-org-uk-1476095-jpg-6f51318a9a.jpg",
+      "images/backpack/kate-spade-backpack-42244663221-jpg-115bbcd260.jpg",
+      "images/bicycle/raleigh-lady-s-loop-frame-bicycle-1930s-jpg-45baa93cc7.jpg",
+      "images/bird/019-anhinga-eating-a-fish-in-encontro-das-guas-state-park-photo-by-giles-laurent-e736b93010.jpg",
+      "images/bird/scarlet-robin-female-blackheath-jpg-4bdc8d0d8e.jpg",
+      "images/boat/boat-in-the-jamuna-bridge-west-bank-eco-park-bangladesh-jpg-62834c7d7f.jpg",
+      "images/boat/tug-boat-ny-1-jpg-ed302ac45c.jpg",
+      "images/bus/rtc-bus-picture-photo-by-june-johns-jpg-3569cb8c73.jpg",
+      "images/car/line-scan-photo-of-shinkansen-n700a-series-set-g13-in-2017-car-10-png-3133e8820d.png",
+      "images/cat/cat-december-2005-1-jpg-00bd009e0e.jpg",
+      "images/cat/white-cat-watching-wikipedia-jpg-499f9bead0.jpg",
+      "images/chair/chair-of-queen-hetepheres-in-2022b-jpg-3a97ef328a.jpg",
+      "images/clock/cape-town-za-waterfront-clock-tower-detail-2024-2911-jpg-4948b0112c.jpg",
+      "images/clock/czech-2013-prague-astronomical-clock-face-jpg-fd69f91e67.jpg",
+      "images/coffee-mug/rtfm-coffee-mug-jpg-68493e8cb3.jpg",
+      "images/computer-mouse/amiga500-system-jpg-aaa20cfb5e.jpg",
+      "images/computer-mouse/magic-mouse-02-pengo-jpg-5696014af4.jpg",
+      "images/cup/flat-white-coffee-at-sainsbury-s-chingford-london-england-3-jpg-2559533ec6.jpg",
+      "images/cup/kopi-o-jpg-3b88c9c818.jpg",
+      "images/dog/kazakh-shepard-with-dogs-and-horse-jpg-3eadd4c71c.jpg",
+      "images/flower/lily-lilium-citronella-flower-jpg-e81ccf4531.jpg",
+      "images/flower/pinguicula-vulgaris-flower-front-view-keila-jpg-1b575f21d9.jpg",
+      "images/horse/animales-aiguamolls-l-emporda-2013-8-jpg-55c2f12736.jpg",
+      "images/horse/chevaux-estive-pyrenees-jpg-4a5a822971.jpg",
+      "images/keyboard/swedish-keyboard-20050614-jpg-998b8a9f3e.jpg",
+      "images/laptop/laptop-computer-monitor-unsplash-jpg-8c766fe668.jpg",
+      "images/laptop/laptop-hard-drive-exposed-jpg-1b44fa4021.jpg",
+      "images/orange/orange-fruit-pieces-jpg-404836cd90.jpg",
+      "images/orange/orange-fruit-sliced-jpg-35501ad295.jpg",
+      "images/shoe/oxford-full-brogue-spectator-shoes-jpg-dd7ed8501f.jpg",
+      "images/strawberry/strawberry-is-a-fruit-instead-of-love-12-jpg-15b0c5f765.jpg",
+      "images/strawberry/strawberry-is-a-fruit-instead-of-love-4-jpg-591415b276.jpg",
+      "images/table/table-am-1991-193-2-jpg-1bd696f918.jpg",
+      "images/table/table-set-by-tapiovaara-jpg-e1c6979616.jpg",
+      "images/train/cargonet-di-12-euro-4000-l-nsdal-bolna-jpg-e3ab6066b0.jpg",
+      "images/train/steam-locomotive-gear-j-06-018-slovenia-jpg-6d5250805b.jpg",
+      "images/tree/055-pink-ip-tree-in-mato-grosso-photo-by-giles-laurent-jpg-d496e4c200.jpg",
+      "images/tree/havelock-island-mangrove-tree-on-the-beach-andaman-islands-jpg-63ebd5eb9c.jpg"
+    ],
+    "validation": [
+      "images/backpack/virga-granite-gear-backpack-3992998461-jpg-962083cfb9.jpg",
+      "images/banana/004-dole-company-banana-fruit-sticker-jpg-d22586f136.jpg",
+      "images/bicycle/colorful-metal-bicycle-parking-rack-in-lysekil-2-jpg-8d5ac88cb7.jpg",
+      "images/bottle/rybelsus-7mg-bottle-front-view-jpg-4b33250cf1.jpg",
+      "images/keyboard/apple-keyboard-ii-jpg-aca7dfc712.jpg"
+    ],
+    "test": [
+      "images/airplane/derelict-cuban-airplane-at-grenada-s-pearls-airport-jpg-b5db4845f4.jpg",
+      "images/banana/koh-mak-thailand-fruit-salad-watermelon-banana-and-pineapple-jpg-5a2d893f97.jpg",
+      "images/bottle/veuve-clicquot-bottle-sizes-jpg-709d083aba.jpg",
+      "images/car/line-scan-photo-of-shinkansen-n700a-series-set-g13-in-2017-car-09-png-6c43e2fc40.png",
+      "images/pencil/pencil-propelling-am-604064-2-jpg-8cf741de62.jpg"
+    ]
+  }
+}

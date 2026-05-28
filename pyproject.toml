@@ -1,0 +1,22 @@
+[project]
+name = "dinov3-mini-vlm"
+version = "0.1.0"
+description = "DINOv3 vision encoder와 작은 LLM을 연결하는 mini VLM 실험 프로젝트"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+model = [
+    "accelerate",
+    "peft",
+    "pillow",
+    "torch",
+    "torchvision",
+    "transformers>=4.57.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["mini_vlm*"]

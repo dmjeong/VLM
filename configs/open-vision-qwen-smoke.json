@@ -1,0 +1,20 @@
+{
+  "experiment_name": "open-vision-qwen-smoke",
+  "vision_model_id": "facebook/dinov2-small",
+  "llm_model_id": "Qwen/Qwen3-0.6B",
+  "adapter_type": "mlp",
+  "visual_token_count": 4,
+  "adapter_hidden_dim": 128,
+  "max_text_length": 64,
+  "train_batch_size": 1,
+  "gradient_accumulation_steps": 1,
+  "learning_rate": 0.0001,
+  "num_train_epochs": 1,
+  "freeze_vision": true,
+  "freeze_llm": true,
+  "use_lora": false,
+  "train_jsonl": "data/samples/train.jsonl",
+  "validation_jsonl": "data/samples/validation.jsonl",
+  "image_root": "data/samples",
+  "output_dir": "artifacts/dinov3-mini-vlm/open-vision-qwen-smoke"
+}

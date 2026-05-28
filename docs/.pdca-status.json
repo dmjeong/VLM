@@ -1,0 +1,147 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-05-28T09:53:07.000Z",
+  "activeFeatures": [
+    "dinov3-mini-vlm"
+  ],
+  "primaryFeature": "dinov3-mini-vlm",
+  "features": {
+    "dinov3-mini-vlm": {
+      "phase": "act",
+      "matchRate": 92,
+      "iterationCount": 3,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-05-28T04:24:12.810Z",
+          "completedAt": "2026-05-28T04:25:41.726Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-05-28T04:24:12.810Z",
+          "completedAt": "2026-05-28T04:30:53.026Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-05-28T04:24:12.810Z",
+          "completedAt": "2026-05-28T04:41:47.633Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-05-28T04:24:12.810Z",
+          "completedAt": "2026-05-28T05:08:13.726Z"
+        },
+        {
+          "phase": "report",
+          "status": "pending",
+          "createdAt": "2026-05-28T04:24:12.810Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-05-28T04:24:12.811Z",
+        "lastUpdated": "2026-05-28T09:53:07.000Z"
+      }
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Starter",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-05-28T04:24:12.808Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-05-28T09:53:07.000Z"
+  },
+  "history": [
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-05-28T04:25:41.723Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-05-28T04:25:41.725Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-05-28T04:28:38.404Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-05-28T04:30:53.024Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-05-28T04:30:53.025Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-05-28T04:41:47.632Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-05-28T04:41:47.632Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-05-28T05:08:13.724Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-05-28T05:08:13.725Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-05-28T05:40:09.603Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-05-28T05:40:09.603Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "from": "act",
+      "to": "act",
+      "timestamp": "2026-05-28T09:53:07.000Z"
+    },
+    {
+      "feature": "dinov3-mini-vlm",
+      "action": "iteration_complete",
+      "phase": "act",
+      "note": "generation guard, validation loss, LoRA, Perceiver adapter를 추가하고 smoke 검증",
+      "timestamp": "2026-05-28T09:53:07.000Z"
+    }
+  ]
+}

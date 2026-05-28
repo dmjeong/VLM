@@ -1,0 +1,20 @@
+{
+  "experiment_name": "dinov3-mini-vlm-mlp-baseline",
+  "vision_model_id": "facebook/dinov3-vits16-pretrain-lvd1689m",
+  "llm_model_id": "Qwen/Qwen3-0.6B",
+  "adapter_type": "mlp",
+  "visual_token_count": 32,
+  "adapter_hidden_dim": 1024,
+  "max_text_length": 256,
+  "train_batch_size": 2,
+  "gradient_accumulation_steps": 8,
+  "learning_rate": 0.0001,
+  "num_train_epochs": 3,
+  "freeze_vision": true,
+  "freeze_llm": true,
+  "use_lora": false,
+  "train_jsonl": "data/samples/train.jsonl",
+  "validation_jsonl": "data/samples/validation.jsonl",
+  "image_root": "data/samples",
+  "output_dir": "artifacts/dinov3-mini-vlm/mlp-baseline"
+}
