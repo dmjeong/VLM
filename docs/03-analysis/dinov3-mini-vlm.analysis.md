@@ -283,3 +283,38 @@ $pdca iterate dinov3-mini-vlm
 ```
 
 Do 2차의 목표는 “코드가 있다”가 아니라 “실제 tensor와 loss가 돈다”로 잡는다.
+
+---
+
+## 11. 2026-05-29 Eval80 반복 분석
+
+### 11.1 목표
+
+- 고정 테스트셋 80개에서 90% 이상, 즉 72개 이상 정답을 목표로 설정했다.
+- 기존 mini VLM만 추가 학습하기 전에 강한 pretrained/teacher VLM을 같은 기준으로 평가해 구조적 한계를 확인했다.
+
+### 11.2 결과
+
+| run | 정답 수 | 정확도 | 판단 |
+|-----|--------:|-------:|------|
+| DINO + Qwen LoRA Stage2 | 25/80 | 31.2% | 직접 학습 모델은 목표와 큰 격차 |
+| SmolVLM2-256M | 41/80 | 51.2% | 작은 pretrained VLM도 부족 |
+| Qwen2.5-VL-3B standard | 58/80 | 72.5% | 강한 baseline이지만 90% 미달 |
+| Qwen2.5-VL-3B strict | 57/80 | 71.2% | task별 prompt만으로 개선 없음 |
+| MLX Qwen2.5-VL-7B 4bit | 63/80 | 78.8% | 로컬 4bit 경로로 개선 |
+| MLX InternVL3-8B 4bit | 64/80 | 80.0% | 단일 모델 최고 |
+| Oracle union | 72/80 | 90.0% | 사후 선택 상한선, 서비스 성능 아님 |
+
+### 11.3 Gap
+
+- 단일 모델 최고가 80.0%라 target 90%까지 8개가 부족하다.
+- counting은 최고 모델에서도 10개 중 4개만 맞았다.
+- Eval80 v1에는 라벨 품질 이슈 4개가 있어 목표 지표를 왜곡한다.
+- oracle union은 90%에 도달하지만, 어떤 모델의 답을 선택할지 자동으로 알 수 없으므로 실제 해결이 아니다.
+
+### 11.4 다음 Act
+
+1. Eval80 v2를 만들어 incomplete/vague label 4개를 교체한다.
+2. validation split에서 모델별 강점 selector를 학습하거나 규칙화한다.
+3. counting 질문은 detection/segmentation/counting 보조 경로를 붙인다.
+4. mini VLM은 현재 구조를 더 학습하기보다 stronger VLM teacher distillation 또는 image-text aligned encoder 구조로 전환한다.

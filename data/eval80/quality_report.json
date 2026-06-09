@@ -1,0 +1,48 @@
+{
+  "dataset": "data/eval80/test.jsonl",
+  "sample_count": 80,
+  "finding_count": 4,
+  "by_reason": {
+    "incomplete-answer": 2,
+    "vague-count-answer": 1,
+    "count-answer-without-number": 1
+  },
+  "findings": [
+    {
+      "sample_id": "lvis-instruct4v-test-aa97b170f3fef4",
+      "task": "visual-question-answering",
+      "image": "images/coco/val2017/000000508101.jpg",
+      "question": "Based on the image, if I were to be on that boat, what precautions should I take?",
+      "answer": "If you were on that boat:",
+      "reason": "incomplete-answer",
+      "message": "정답이 콜론으로 끝나 실제 답변 내용이 누락된 것으로 보임"
+    },
+    {
+      "sample_id": "lvis-instruct4v-test-0d45fae7f439b3",
+      "task": "counting",
+      "image": "images/coco/val2017/000000461405.jpg",
+      "question": "Based on the image, how many sheep and lambs are in the image?",
+      "answer": "There are multiple sheep and lambs in the image. Specifically, I see 18 sheep and 12 lambs.",
+      "reason": "vague-count-answer",
+      "message": "counting 정답에 few/multiple 같은 모호한 수량 표현이 섞여 있음"
+    },
+    {
+      "sample_id": "lvis-instruct4v-test-d2c1e9eea0a006",
+      "task": "counting",
+      "image": "images/coco/val2017/000000022892.jpg",
+      "question": "How many plants are visible?",
+      "answer": "There are a few small plants in pots visible in the image.",
+      "reason": "count-answer-without-number",
+      "message": "counting 질문인데 정답에 숫자가 없음"
+    },
+    {
+      "sample_id": "lvis-instruct4v-test-75c4ebcd743626",
+      "task": "visual-question-answering",
+      "image": "images/coco/val2017/000000356498.jpg",
+      "question": "Look at the image and answer: If I wanted to recreate this dish, what ingredients might I need based on the visual content?",
+      "answer": "To recreate this dish, you might need the following ingredients:",
+      "reason": "incomplete-answer",
+      "message": "정답이 콜론으로 끝나 실제 답변 내용이 누락된 것으로 보임"
+    }
+  ]
+}

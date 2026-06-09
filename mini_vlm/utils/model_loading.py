@@ -18,6 +18,8 @@ def load_checkpoint_into_model(model, config: MiniVlmConfig, checkpoint: str | P
     checkpoint_dir = Path(checkpoint)
     loaded: dict[str, str] = {}
     adapter_path = checkpoint_dir / "visual_adapter.pt"
+    if not adapter_path.exists():
+        adapter_path = latest_epoch_adapter_path(checkpoint_dir)
     if adapter_path.exists():
         state = torch.load(adapter_path, map_location="cpu")
         model.visual_adapter.load_state_dict(state)
@@ -28,6 +30,24 @@ def load_checkpoint_into_model(model, config: MiniVlmConfig, checkpoint: str | P
         load_lora_adapter(model.llm, lora_path)
         loaded["llm_lora"] = str(lora_path)
     return loaded
+
+
+def latest_epoch_adapter_path(checkpoint_dir: Path) -> Path:
+    """최종 adapter가 없을 때 가장 마지막 epoch checkpoint를 찾는다."""
+
+    candidates = sorted(
+        checkpoint_dir.glob("visual_adapter_epoch_*.pt"),
+        key=lambda path: epoch_number_from_adapter_path(path),
+    )
+    return candidates[-1] if candidates else checkpoint_dir / "visual_adapter.pt"
+
+
+def epoch_number_from_adapter_path(path: Path) -> int:
+    stem = path.stem
+    try:
+        return int(stem.rsplit("_", 1)[-1])
+    except ValueError:
+        return -1
 
 
 def load_lora_adapter(llm, lora_path: Path) -> None:

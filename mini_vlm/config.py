@@ -32,6 +32,7 @@ class MiniVlmConfig:
     adapter_type: AdapterType = "mlp"
     visual_token_count: int = 32
     adapter_hidden_dim: int = 1024
+    adapter_layer_count: int = 2
     max_text_length: int = 256
     train_batch_size: int = 2
     gradient_accumulation_steps: int = 8
@@ -43,10 +44,14 @@ class MiniVlmConfig:
     use_lora: bool = False
     device: str = "auto"
     max_grad_norm: float = 1.0
+    init_visual_adapter: str = ""
     lora_r: int = 8
     lora_alpha: int = 16
     lora_dropout: float = 0.05
     lora_target_modules: tuple[str, ...] = ("q_proj", "k_proj", "v_proj", "o_proj")
+    qformer_text_model_id: str = "distilbert-base-uncased"
+    qformer_init_from_text: bool = False
+    contrastive_dim: int = 256
     max_new_tokens: int = 32
     repetition_penalty: float = 1.15
     no_repeat_ngram_size: int = 3
@@ -65,6 +70,13 @@ class MiniVlmConfig:
         vision_backend = str(payload.get("vision_backend", cls.vision_backend))
         if vision_backend not in {"hf", "torchhub"}:
             raise ValueError("vision_backend는 hf 또는 torchhub 중 하나여야 합니다.")
+        adapter_hidden_dim = int(payload.get("adapter_hidden_dim", cls.adapter_hidden_dim))
+        qformer_init_from_text = bool(payload.get("qformer_init_from_text", cls.qformer_init_from_text))
+        if adapter_type == "qformer" and qformer_init_from_text and adapter_hidden_dim != 768:
+            raise ValueError(
+                "DistilBERT 초기화 Q-Former는 adapter_hidden_dim=768이어야 합니다. "
+                "BLIP-2 스타일 실험은 768 설정을 사용하세요."
+            )
         return cls(
             experiment_name=str(payload.get("experiment_name", cls.experiment_name)),
             vision_backend=vision_backend,  # type: ignore[arg-type]
@@ -76,7 +88,8 @@ class MiniVlmConfig:
             llm_model_id=str(payload.get("llm_model_id", cls.llm_model_id)),
             adapter_type=adapter_type,  # type: ignore[arg-type]
             visual_token_count=int(payload.get("visual_token_count", cls.visual_token_count)),
-            adapter_hidden_dim=int(payload.get("adapter_hidden_dim", cls.adapter_hidden_dim)),
+            adapter_hidden_dim=adapter_hidden_dim,
+            adapter_layer_count=int(payload.get("adapter_layer_count", cls.adapter_layer_count)),
             max_text_length=int(payload.get("max_text_length", cls.max_text_length)),
             train_batch_size=int(payload.get("train_batch_size", cls.train_batch_size)),
             gradient_accumulation_steps=int(
@@ -90,6 +103,7 @@ class MiniVlmConfig:
             use_lora=bool(payload.get("use_lora", cls.use_lora)),
             device=str(payload.get("device", cls.device)),
             max_grad_norm=float(payload.get("max_grad_norm", cls.max_grad_norm)),
+            init_visual_adapter=str(payload.get("init_visual_adapter", cls.init_visual_adapter)),
             lora_r=int(payload.get("lora_r", cls.lora_r)),
             lora_alpha=int(payload.get("lora_alpha", cls.lora_alpha)),
             lora_dropout=float(payload.get("lora_dropout", cls.lora_dropout)),
@@ -97,6 +111,9 @@ class MiniVlmConfig:
                 payload.get("lora_target_modules", cls.lora_target_modules),
                 "lora_target_modules",
             ),
+            qformer_text_model_id=str(payload.get("qformer_text_model_id", cls.qformer_text_model_id)),
+            qformer_init_from_text=qformer_init_from_text,
+            contrastive_dim=int(payload.get("contrastive_dim", cls.contrastive_dim)),
             max_new_tokens=int(payload.get("max_new_tokens", cls.max_new_tokens)),
             repetition_penalty=float(payload.get("repetition_penalty", cls.repetition_penalty)),
             no_repeat_ngram_size=int(payload.get("no_repeat_ngram_size", cls.no_repeat_ngram_size)),

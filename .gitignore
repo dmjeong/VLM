@@ -14,7 +14,7 @@ dist/
 *.egg-info/
 artifacts/
 external/
-models/
+/models/
 data/external_vlm_10k/
 data/external_manifests/
 node_modules/

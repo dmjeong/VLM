@@ -3,7 +3,12 @@ from __future__ import annotations
 import unittest
 
 from mini_vlm.config import MiniVlmConfig
-from mini_vlm.evaluation.evaluate_cli import normalize_answer, resolve_split_path, score_generation
+from mini_vlm.evaluation.evaluate_cli import (
+    normalize_answer,
+    resolve_split_path,
+    score_generation,
+    select_generation_indices,
+)
 
 
 class EvaluationHelperTest(unittest.TestCase):
@@ -26,6 +31,18 @@ class EvaluationHelperTest(unittest.TestCase):
         self.assertTrue(score["contains_answer"])
         self.assertFalse(score["exact_match"])
         self.assertEqual(score["token_overlap"], 1.0)
+
+    def test_select_generation_indices_can_sample_evenly(self) -> None:
+        self.assertEqual(
+            select_generation_indices(dataset_length=1000, max_samples=5, sampling="even"),
+            [0, 250, 500, 749, 999],
+        )
+
+    def test_select_generation_indices_keeps_first_mode_for_debugging(self) -> None:
+        self.assertEqual(
+            select_generation_indices(dataset_length=1000, max_samples=5, sampling="first"),
+            [0, 1, 2, 3, 4],
+        )
 
 
 if __name__ == "__main__":

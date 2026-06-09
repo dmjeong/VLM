@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import unittest
+import importlib.util
+from tempfile import TemporaryDirectory
 
 from mini_vlm.training.train_alignment import (
     format_training_progress,
     has_pending_optimizer_step,
+    load_initial_visual_adapter_if_requested,
     normalize_gradient_accumulation_steps,
     should_log_training_step,
     should_step_optimizer,
@@ -12,6 +15,9 @@ from mini_vlm.training.train_alignment import (
 )
 from mini_vlm.training.train_instruction import build_instruction_training_plan
 from mini_vlm.config import MiniVlmConfig
+
+
+TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
 
 
 class TrainingLoopContractTest(unittest.TestCase):
@@ -58,6 +64,32 @@ class TrainingLoopContractTest(unittest.TestCase):
         self.assertIn("epoch 1/10", line)
         self.assertIn("25.0%", line)
         self.assertIn("loss=1.2500", line)
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "torch가 설치된 환경에서만 adapter 초기화 로드 테스트를 실행합니다.")
+    def test_load_initial_visual_adapter_loads_state_dict(self) -> None:
+        import torch
+        from torch import nn
+
+        class FakeModel(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.visual_adapter = nn.Linear(2, 2)
+
+        source = FakeModel()
+        target = FakeModel()
+        with torch.no_grad():
+            source.visual_adapter.weight.fill_(3.0)
+        with TemporaryDirectory() as temp_dir:
+            checkpoint = f"{temp_dir}/visual_adapter.pt"
+            torch.save(source.visual_adapter.state_dict(), checkpoint)
+
+            loaded = load_initial_visual_adapter_if_requested(
+                target,
+                MiniVlmConfig(init_visual_adapter=checkpoint),
+            )
+
+        self.assertEqual(loaded, checkpoint)
+        self.assertTrue(torch.allclose(target.visual_adapter.weight, torch.full((2, 2), 3.0)))
 
 
 class InstructionTrainingPlanTest(unittest.TestCase):

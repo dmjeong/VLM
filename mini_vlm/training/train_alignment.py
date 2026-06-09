@@ -50,6 +50,7 @@ def train_alignment(config_path_or_object) -> None:
     config = load_config(config_path_or_object) if isinstance(config_path_or_object, (str, Path)) else config_path_or_object
     set_seed(config.seed)
     built = build_mini_vlm(config)
+    loaded_initial_adapter = load_initial_visual_adapter_if_requested(built.model, config)
     train_dataset = MiniVlmDataset(config.train_jsonl, image_root=config.image_root)
     collator = MiniVlmCollator(
         tokenizer=built.tokenizer,
@@ -113,6 +114,8 @@ def train_alignment(config_path_or_object) -> None:
         f"adapter={config.adapter_type} lora={config.use_lora}",
         flush=True,
     )
+    if loaded_initial_adapter:
+        print(f"초기 visual adapter 로드: {loaded_initial_adapter}", flush=True)
     print(f"metrics: {metrics_path}", flush=True)
     for epoch in range(config.num_train_epochs):
         epoch_batch_count = 0
@@ -227,6 +230,17 @@ def train_alignment(config_path_or_object) -> None:
                     "reason": "gradient_accumulation_steps보다 batch 수가 적어 남은 gradient를 epoch 끝에서 반영",
                 },
             )
+        epoch_checkpoint_path = output_dir / f"visual_adapter_epoch_{epoch + 1}.pt"
+        torch.save(model.visual_adapter.state_dict(), epoch_checkpoint_path)
+        append_jsonl(
+            metrics_path,
+            {
+                "event": "epoch_checkpoint",
+                "epoch": epoch,
+                "step": global_step,
+                "path": str(epoch_checkpoint_path),
+            },
+        )
         epoch_summary = summarize_epoch_losses(epoch=epoch, losses=epoch_losses, optimizer_step=optimizer_step)
         validation_summary = None
         if validation_loader is not None:
@@ -382,7 +396,9 @@ def evaluate_validation_loss(*, model, data_loader, device) -> dict[str, float |
                 raise RuntimeError("validation 중 LLM output에 loss가 없습니다.")
             loss_value = float(output.loss.item())
             if not math.isfinite(loss_value):
-                raise FloatingPointError(f"validation loss가 비정상 값입니다: {loss_value}")
+                raise FloatingPointError(
+                    f"validation loss가 비정상 값입니다: sample_ids={batch.sample_ids}, loss={loss_value}"
+                )
             validation_losses.append(loss_value)
     if was_training:
         model.train()
@@ -422,6 +438,23 @@ def assert_trainable_parameters_finite(parameters) -> None:
 def append_jsonl(path: Path, payload: dict) -> None:
     with path.open("a", encoding="utf-8") as file:
         file.write(json.dumps(payload, ensure_ascii=False, allow_nan=False) + "\n")
+
+
+def load_initial_visual_adapter_if_requested(model, config) -> str:
+    """사전학습된 visual adapter weight를 Stage 1 학습 초기값으로 로드한다."""
+
+    if not config.init_visual_adapter:
+        return ""
+    import torch
+
+    adapter_path = Path(config.init_visual_adapter)
+    if adapter_path.is_dir():
+        adapter_path = adapter_path / "visual_adapter.pt"
+    if not adapter_path.exists():
+        raise FileNotFoundError(f"초기 visual adapter checkpoint를 찾을 수 없습니다: {adapter_path}")
+    state = torch.load(adapter_path, map_location="cpu")
+    model.visual_adapter.load_state_dict(state)
+    return str(adapter_path)
 
 
 if __name__ == "__main__":

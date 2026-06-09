@@ -35,6 +35,19 @@ class VisualAdapterTest(unittest.TestCase):
 
         self.assertEqual(tuple(visual_tokens.shape), (2, 5, 12))
 
+    def test_qformer_visual_adapter_projects_patch_tokens(self) -> None:
+        import torch
+
+        from mini_vlm.models.visual_adapter import QFormerVisualAdapter
+
+        adapter = QFormerVisualAdapter(vision_dim=8, llm_dim=12, visual_token_count=6, hidden_dim=16)
+        patch_tokens = torch.randn(2, 9, 8)
+        cls_token = torch.randn(2, 8)
+
+        visual_tokens = adapter(patch_tokens, cls_token)
+
+        self.assertEqual(tuple(visual_tokens.shape), (2, 6, 12))
+
     def test_attention_head_count_uses_divisor(self) -> None:
         from mini_vlm.models.visual_adapter import choose_attention_head_count
 

@@ -30,6 +30,38 @@ class MiniVlmCollatorTest(unittest.TestCase):
         self.assertIn(-100, labels)
         self.assertEqual(labels[-1], FakeTokenizer.eos_token_id)
 
+    def test_truncates_long_prompt_without_dropping_answer_labels(self) -> None:
+        sample = MiniVlmSample(
+            sample_id="long-prompt",
+            image="images/sample-grid.ppm",
+            question="Q" * 200,
+            answer="A",
+        )
+        collator = MiniVlmCollator(FakeTokenizer(), image_root="data/samples", max_text_length=32)
+
+        input_ids, labels = collator.build_text_features(sample)
+
+        self.assertEqual(len(input_ids), 32)
+        self.assertEqual(len(labels), 32)
+        self.assertTrue(any(label != -100 for label in labels))
+        self.assertEqual(labels[-1], FakeTokenizer.eos_token_id)
+
+    def test_truncates_overlong_answer_but_keeps_supervised_tokens(self) -> None:
+        sample = MiniVlmSample(
+            sample_id="long-answer",
+            image="images/sample-grid.ppm",
+            question="Q?",
+            answer="A" * 200,
+        )
+        collator = MiniVlmCollator(FakeTokenizer(), image_root="data/samples", max_text_length=16)
+
+        input_ids, labels = collator.build_text_features(sample)
+
+        self.assertEqual(len(input_ids), 16)
+        self.assertEqual(labels, input_ids)
+        self.assertTrue(all(label != -100 for label in labels))
+        self.assertEqual(labels[-1], FakeTokenizer.eos_token_id)
+
     def test_collates_batch_without_torch_dependency(self) -> None:
         sample = MiniVlmSample(
             sample_id="sample",

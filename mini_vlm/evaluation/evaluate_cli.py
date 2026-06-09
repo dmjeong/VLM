@@ -29,6 +29,12 @@ def main() -> None:
     parser.add_argument("--jsonl", default="")
     parser.add_argument("--output-dir", default="")
     parser.add_argument("--max-generation-samples", type=int, default=5)
+    parser.add_argument(
+        "--generation-sampling",
+        choices=("even", "first"),
+        default="even",
+        help="생성 평가 샘플 선택 방식. even은 전체 split에 고르게 퍼진 샘플을 고르고, first는 앞에서부터 고릅니다.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -53,6 +59,7 @@ def main() -> None:
         dataset_path=dataset_path,
         output_dir=output_dir,
         max_generation_samples=args.max_generation_samples,
+        generation_sampling=args.generation_sampling,
     )
 
 
@@ -64,6 +71,7 @@ def run_evaluation(
     dataset_path: str | Path,
     output_dir: str | Path,
     max_generation_samples: int,
+    generation_sampling: str = "even",
 ) -> EvaluationPaths:
     try:
         import torch
@@ -105,6 +113,7 @@ def run_evaluation(
         device=device,
         output_path=predictions_path,
         max_samples=max_generation_samples,
+        sampling=generation_sampling,
         max_new_tokens=config.max_new_tokens,
         repetition_penalty=config.repetition_penalty,
         no_repeat_ngram_size=config.no_repeat_ngram_size,
@@ -119,6 +128,7 @@ def run_evaluation(
         "checkpoint": str(checkpoint),
         "loaded_files": loaded_files,
         "sample_count": len(dataset),
+        "generation_sampling": generation_sampling,
         **loss_summary,
         **generation_summary,
     }
@@ -194,6 +204,7 @@ def generate_prediction_samples(
     device,
     output_path: Path,
     max_samples: int,
+    sampling: str,
     max_new_tokens: int,
     repetition_penalty: float,
     no_repeat_ngram_size: int,
@@ -203,10 +214,10 @@ def generate_prediction_samples(
     torch_module,
 ) -> dict[str, float | int]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    count = max(0, min(max_samples, len(dataset)))
+    indices = select_generation_indices(dataset_length=len(dataset), max_samples=max_samples, sampling=sampling)
     scores: list[dict[str, Any]] = []
     with output_path.open("w", encoding="utf-8") as file:
-        for index in range(count):
+        for index in indices:
             sample = dataset[index]
             image = image_class.open(dataset.image_path_for(sample)).convert("RGB")
             processed = image_processor(images=[image], return_tensors="pt")
@@ -244,16 +255,54 @@ def generate_prediction_samples(
     if not scores:
         return {
             "generation_sample_count": 0,
+            "generation_unique_image_count": 0,
             "exact_match_rate": 0.0,
             "contains_answer_rate": 0.0,
             "avg_token_overlap": 0.0,
         }
     return {
         "generation_sample_count": len(scores),
+        "generation_unique_image_count": len({dataset[index].image for index in indices}),
         "exact_match_rate": sum(1 for score in scores if score["exact_match"]) / len(scores),
         "contains_answer_rate": sum(1 for score in scores if score["contains_answer"]) / len(scores),
         "avg_token_overlap": sum(float(score["token_overlap"]) for score in scores) / len(scores),
     }
+
+
+def select_generation_indices(*, dataset_length: int, max_samples: int, sampling: str) -> list[int]:
+    """생성 평가에 사용할 dataset index를 고른다.
+
+    의도: test split이 이미지나 source 기준으로 정렬되어 있으면 앞 N개 생성 평가는 특정 이미지에만 몰린다.
+    `even`은 loss 평가처럼 전체 분포를 완벽히 보진 못해도, 제한된 생성 비용 안에서 split 전반을 훑게 한다.
+    """
+
+    count = max(0, min(max_samples, dataset_length))
+    if count == 0:
+        return []
+    if sampling == "first":
+        return list(range(count))
+    if sampling != "even":
+        raise ValueError(f"지원하지 않는 generation sampling 방식입니다: {sampling}")
+    if count == dataset_length or count == 1:
+        return list(range(count))
+
+    last_index = dataset_length - 1
+    selected: list[int] = []
+    seen: set[int] = set()
+    for sample_index in range(count):
+        dataset_index = round(sample_index * last_index / (count - 1))
+        if dataset_index not in seen:
+            selected.append(dataset_index)
+            seen.add(dataset_index)
+
+    if len(selected) < count:
+        for dataset_index in range(dataset_length):
+            if dataset_index not in seen:
+                selected.append(dataset_index)
+                seen.add(dataset_index)
+                if len(selected) == count:
+                    break
+    return selected
 
 
 def score_generation(generated: str, expected: str) -> dict[str, bool | float]:
@@ -289,6 +338,8 @@ def write_evaluation_report(summary: dict[str, Any], path: Path) -> None:
         f"- 평균 loss: `{_format_metric(summary.get('avg_loss'))}`",
         f"- 최소/최대 loss: `{_format_metric(summary.get('min_loss'))}` / `{_format_metric(summary.get('max_loss'))}`",
         f"- 생성 샘플 수: `{summary.get('generation_sample_count')}`",
+        f"- 생성 샘플링: `{summary.get('generation_sampling', 'N/A')}`",
+        f"- 생성 고유 이미지 수: `{summary.get('generation_unique_image_count', 'N/A')}`",
         f"- exact match rate: `{_format_metric(summary.get('exact_match_rate'))}`",
         f"- contains answer rate: `{_format_metric(summary.get('contains_answer_rate'))}`",
         f"- 평균 token overlap: `{_format_metric(summary.get('avg_token_overlap'))}`",

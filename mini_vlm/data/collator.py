@@ -58,8 +58,31 @@ class MiniVlmCollator:
         prompt = f"Question: {sample.question}\nAnswer:"
         prompt_ids = self.tokenizer.encode(prompt, add_special_tokens=False)
         answer_ids = self.tokenizer.encode(f" {sample.answer}", add_special_tokens=False) + [self.eos_token_id]
-        input_ids = (prompt_ids + answer_ids)[: self.max_text_length]
-        labels = ([-100] * len(prompt_ids) + answer_ids)[: self.max_text_length]
+        input_ids, labels = self._fit_prompt_and_answer(prompt_ids=prompt_ids, answer_ids=answer_ids)
+        return input_ids, labels
+
+    def _fit_prompt_and_answer(self, *, prompt_ids: list[int], answer_ids: list[int]) -> tuple[list[int], list[int]]:
+        """정답 token을 보존하면서 prompt와 answer를 최대 길이에 맞춘다.
+
+        의도: MMBench처럼 질문과 보기가 긴 샘플은 단순 앞쪽 truncation을 적용하면 answer label이 전부
+        잘려 `[-100, ...]`만 남을 수 있다. 이 상태에서 causal LM loss를 계산하면 학습 대상 token이
+        0개가 되어 validation loss가 NaN이 된다.
+        선택 이유: Stage 1 adapter 학습은 "이미지 prefix + 질문 -> 정답"을 맞히는 것이 목적이므로,
+        context 일부를 줄이더라도 supervised answer token은 반드시 남기는 편이 안전하다.
+        """
+
+        if self.max_text_length <= 0:
+            raise ValueError("max_text_length는 1 이상이어야 합니다.")
+
+        if len(answer_ids) >= self.max_text_length:
+            fitted_answer = answer_ids[: self.max_text_length]
+            fitted_answer[-1] = self.eos_token_id
+            return fitted_answer, fitted_answer
+
+        prompt_budget = self.max_text_length - len(answer_ids)
+        fitted_prompt = prompt_ids[-prompt_budget:] if len(prompt_ids) > prompt_budget else prompt_ids
+        input_ids = fitted_prompt + answer_ids
+        labels = [-100] * len(fitted_prompt) + answer_ids
         return input_ids, labels
 
     def __call__(self, samples: Sequence[MiniVlmSample]) -> MiniVlmBatch:
